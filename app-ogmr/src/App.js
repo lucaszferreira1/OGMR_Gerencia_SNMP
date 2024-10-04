@@ -22,7 +22,7 @@ function Login() {
   return (
     <div className="container">
       <div className="card">
-        <h2>Página de Login</h2>
+        <h2>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="login">Login:</label>

@@ -29,6 +29,14 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
 
+  .card-inativo-bloqueado {
+    border: 2px solid red;
+  }
+
+  .card-inativo-ativo {
+    border: 2px solid green;
+  }
+
   .computador-card:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
@@ -51,20 +59,22 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-  }
-  
-  .status.ativo {
-    background-color: green;
-  }
-  
-  .status.inativo {
-    background-color: gray;
+    margin-left: 5px;
   }
 
-  .status.bloqueado {
+  
+  .status.st-ativo {
+    background-color: green;
+  }
+
+  .status.st-bloqueado {
     background-color: red;
   }
 
+  .status.st-inativo {
+    background-color: gray;
+  }
+  
 
   button {
     background-color: #007bff;
@@ -96,32 +106,24 @@
     transition: background-color 0.3s;
   }
 
-  .bloqueado,.unblock-all-button {
+  .bloqueado,.block-all-button {
     background-color: #28a745;
   }
 
-  .ativo,.block-all-button {
+  .ativo,.unblock-all-button {
     background-color: #dc3545;
   }
 
-  .inativo {
-    background-color: #949494;
-  }
-  
   .agendar {
     background-color: #007bff;
   }
   
-  .bloqueado:hover,.unblock-all-button:hover {
+  .bloqueado:hover,.block-all-button:hover {
     background-color: #218838;
   }
 
-  .ativo:hover,.block-all-button:hover {
+  .ativo:hover,.unblock-all-button:hover {
     background-color: #c82333;
-  }
-
-  .inativo:hover {
-    background-color: #7a7a7a;
   }
   
   .agendar:hover {
