@@ -1,0 +1,8 @@
+nodejs.org
+
+npm install -g create-react-app
+npm install react-router-dom@latest
+
+npx create-react-app my-app
+cd app-ogmr
+npm start

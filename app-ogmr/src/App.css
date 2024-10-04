@@ -1,0 +1,89 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212; /* Fundo escuro */
+  color: #ffffff; /* Texto claro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.card {
+  background-color: #1e1e1e; /* Fundo do cartão */
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  padding: 30px; /* Aumentei o padding */
+  width: 350px; /* Aumentei a largura */
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #cccccc; /* Cor do texto do label */
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #444; /* Borda mais clara */
+  border-radius: 4px;
+  background-color: rgba(55, 55, 55, 0.7); /* Fundo do input */
+  color: #ffffff; /* Texto do input */
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  border-color: #007bff; /* Borda azul ao focar */
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff; /* Cor do botão */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 10px; /* Add this line to create vertical space */
+}
+
+button:last-of-type {
+  margin-bottom: 0; /* Remove margin from the last button */
+}
+
+button:hover {
+  background-color: #0056b3; /* Cor ao passar o mouse */
+}
+
+
+
+.mensagem {
+  text-align: center;
+  margin-top: 10px;
+  color: #d9534f;
+}

@@ -1,0 +1,62 @@
+CREATE TABLE Usuario (
+    ID INT PRIMARY KEY NOT NULL,
+    Nome VARCHAR(128),
+    Login VARCHAR(64) NOT NULL UNIQUE,
+    Senha VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE Switch (
+    ID INT PRIMARY KEY NOT NULL,
+    Login VARCHAR(64) NOT NULL,
+    NumPortas INT NOT NULL,
+    Intervalo INT,
+    IP VARCHAR(64) NOT NULL UNIQUE,
+    Nome VARCHAR(64) NOT NULL,
+    ChaveComunidade VARCHAR(255),
+    ChaveAutentica VARCHAR(255),
+    ChavePrivada VARCHAR(255),
+    PrtclAutentica VARCHAR(10),
+    PrtclEncripta VARCHAR(10),
+    NivelSeguranca VARCHAR(20),
+    VersaoSMNP VARCHAR(10) NOT NULL,
+    FOREIGN KEY (Login) REFERENCES Usuario(Login)
+);
+
+CREATE TABLE Sala (
+    Id INT PRIMARY KEY NOT NULL,
+    Nome VARCHAR(128) NOT NULL,
+    Bloco VARCHAR(128)
+);
+
+CREATE TABLE Computador (
+    Id INT PRIMARY KEY NOT NULL,
+    IdSwitch INT NOT NULL,
+    IdSala INT,
+    MAC VARCHAR(32),
+    Nome VARCHAR(128) NOT NULL,
+    Status BOOL NOT NULL,
+    UltConexao TIMESTAMP,
+    Porta INT NOT NULL,
+    FOREIGN KEY (IdSwitch) REFERENCES Switch(ID),
+    FOREIGN KEY (IdSala) REFERENCES Sala(Id)
+);
+
+CREATE TABLE Bloqueio (
+    ID INT PRIMARY KEY NOT NULL,
+    IDUsuario INT NOT NULL,
+    IdSwitch INT NOT NULL,
+    Porta INT NOT NULL,
+    Inicio TIMESTAMP NOT NULL,
+    Fim TIMESTAMP NOT NULL,
+    FOREIGN KEY (IDUsuario) REFERENCES Usuario(ID),
+    FOREIGN KEY (IdSwitch) REFERENCES Switch(ID)
+);
+
+CREATE TABLE SwitchSala (
+    Id INT PRIMARY KEY NOT NULL,
+    IdSala INT NOT NULL,
+    IdSwitch INT NOT NULL,
+    FOREIGN KEY (IdSala) REFERENCES Sala(Id),
+    FOREIGN KEY (IdSwitch) REFERENCES Switch(ID)
+);
+
