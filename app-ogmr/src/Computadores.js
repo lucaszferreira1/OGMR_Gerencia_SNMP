@@ -4,14 +4,14 @@ import './Computadores.css';
 import Modal from './Modal';
 
 const initialComputadoresData = [
-  { id: 1, porta: 'COM1', status: 'Ativo', isActive: true },
-  { id: 2, porta: 'COM2', status: 'Bloqueado', isActive: false },
-  { id: 3, porta: 'COM3', status: 'Ativo', isActive: true },
-  { id: 4, porta: 'COM4', status: 'Ativo', isActive: false },
-  { id: 5, porta: 'COM5', status: 'Ativo', isActive: false },
-  { id: 6, porta: 'COM6', status: 'Bloqueado', isActive: true },
-  { id: 7, porta: 'COM7', status: 'Ativo', isActive: true },
-  { id: 8, porta: 'COM8', status: 'Bloqueado', isActive: false },
+  { id: 1, porta: 'COM1', status: 'Ativo'},
+  { id: 2, porta: 'COM2', status: 'Bloqueado'},
+  { id: 3, porta: 'COM3', status: 'Ativo'},
+  { id: 4, porta: 'COM4', status: 'Ativo'},
+  { id: 5, porta: 'COM5', status: 'Ativo'},
+  { id: 6, porta: 'COM6', status: 'Bloqueado'},
+  { id: 7, porta: 'COM7', status: 'Ativo'},
+  { id: 8, porta: 'COM8', status: 'Bloqueado'},
 ];
 
 function Computadores() {
@@ -72,17 +72,17 @@ function Computadores() {
       <br></br><br></br>
       <div className="computadores-list">
         {computadoresData.map((computador) => (
-          <div key={computador.id} className={`computador-card ${!computador.isActive ? (computador.status === 'Bloqueado' ? 'card-inativo-bloqueado' : 'card-inativo-ativo') : ''}`}>
+          <div key={computador.id} className={'computador-card'}>
             <div className="computador-icon">💻</div>
             <div className="computador-info">
               <p>Porta: {computador.porta}</p>
               <p>Status:  
-              <span className={`status ${computador.isActive ? (computador.status === 'Ativo' ? 'st-ativo' : 'st-bloqueado') : 'st-inativo'}`}></span>
+              <span className={`status ${computador.status === 'Ativo' ? 'st-ativo' : 'st-bloqueado'}`}></span>
               </p>
             </div>
             <div className="computador-actions">
               <button 
-                className={computador.status === 'Ativo' ? 'bloqueado' : 'ativo'}
+                className={computador.status === 'Ativo' ? 'ativo' : 'bloqueado'}
                 onClick={() => toggleStatus(computador.id)} 
               >
                 {computador.status === 'Bloqueado' ? 'Desbloquear' : 'Bloquear'}
