@@ -14,7 +14,8 @@ function Modal({ isOpen, onClose, computador }) {
     setIsSubmitting(true);
 
     const scheduleData = {
-      computadorId: computador?.id,
+      porta: computador?.porta,
+      login: computador?.login,
       startTime,
       endTime,
     };
@@ -23,7 +24,7 @@ function Modal({ isOpen, onClose, computador }) {
       if (new Date(startTime) >= new Date(endTime)) {
         return alert('Tempo de início menor que tempo de fim.');
       }
-      const response = await fetch('/api/schedule', {
+      const response = await fetch('http://localhost:5000/agendar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

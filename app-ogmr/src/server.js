@@ -135,20 +135,20 @@ app.put('/computadores/unblock-all', async (req, res) => {
     }
 });
 
-app.post('/api/schedule', async (req, res) => {
-    const { computadorId, startTime, endTime } = req.body;
-  
-    if (!computadorId || !startTime || !endTime) {
+app.post('/agendar', async (req, res) => {
+    const {login, porta, startTime, endTime } = req.body;
+    
+    if (!login || !porta || !startTime || !endTime) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
   
     try {
       const result = await pool.query(
-        'INSERT INTO Schedule (computador_id, start_time, end_time) VALUES ($1, $2, $3) RETURNING *',
-        [computadorId, startTime, endTime]
+        'INSERT INTO BLOQUEIO (ID, IDUSUARIO, IDSWITCH, PORTA, INICIO, FIM) VALUES ((SELECT COALESCE(MAX(ID), 0) + 1 FROM BLOQUEIO), (SELECT ID FROM USUARIO WHERE LOGIN = $2), (SELECT ID FROM SWITCH WHERE LOGIN = $2), $1, $3, $4) RETURNING *',
+        [porta, login, startTime, endTime]
       );
   
-      res.status(201).json(result.rows[0]); // Return the newly created schedule
+      res.status(201).json(result.rows[0]);
     } catch (err) {
       console.error('Error creating schedule:', err);
       res.status(500).json({ error: 'Failed to create schedule' });
