@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {useLocation} from 'react-router-dom';
 import './Computadores.css';
 import Modal from './Modal';
 
@@ -6,12 +7,23 @@ function Computadores() {
   const [computadoresData, setComputadoresData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedComputador, setSelectedComputador] = useState(null);
+  const location = useLocation();
+  const login = location.state?.login;
 
   // Fetch data from server on component mount
   useEffect(() => {
     const fetchComputadores = async () => {
       try {
-        const response = await fetch('http://localhost:5000/computadores'); // Replace with your server endpoint
+        const response = await fetch('http://localhost:5000/computadores', {
+          method: 'POST', // Use POST since we're sending data in the body
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login }), // Send login as JSON
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch computadores');
+        }
+
         const data = await response.json();
         setComputadoresData(data);
       } catch (error) {
@@ -19,8 +31,8 @@ function Computadores() {
       }
     };
 
-    fetchComputadores();
-  }, []);
+    if (login) fetchComputadores(); // Only fetch if login is available
+  }, [login]);
 
   // Handle agendar button click
   const handleAgendarClick = (computador) => {
@@ -34,12 +46,12 @@ function Computadores() {
   };
 
   // Toggle status and update the backend
-  const toggleStatus = async (id) => {
+  const toggleStatus = async (porta) => {
     try {
-      const computador = computadoresData.find((c) => c.id === id);
+      const computador = computadoresData.find((c) => c.porta === porta);
       const updatedStatus = computador.status ? false : true;
       // Update on the server
-      const response = await fetch(`http://localhost:5000/computadores/single/${id}`, {
+      const response = await fetch(`http://localhost:5000/computadores/single/${porta}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: updatedStatus }),
@@ -49,7 +61,7 @@ function Computadores() {
         // Update local state
         setComputadoresData((prevData) =>
           prevData.map((computador) =>
-            computador.id === id ? { ...computador, status: updatedStatus } : computador
+            computador.porta === porta ? { ...computador, status: updatedStatus } : computador
           )
         );
       } else {
@@ -118,14 +130,14 @@ function Computadores() {
             <div className="computador-icon">💻</div>
             <div className="computador-info">
               <p>Porta: {computador.porta}</p>
-              <p>Status:  
+              <p>Status:   
               <span className={`status ${computador.status ? 'st-ativo' : 'st-bloqueado'}`}></span>
               </p>
             </div>
             <div className="computador-actions">
               <button 
                 className={computador.status ? 'ativo' : 'bloqueado'}
-                onClick={() => toggleStatus(computador.id)} 
+                onClick={() => toggleStatus(computador.porta)} 
               >
                 {computador.status ? 'Bloquear' : 'Desbloquear'}
               </button>

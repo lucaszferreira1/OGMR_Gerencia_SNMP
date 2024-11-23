@@ -62,18 +62,19 @@ app.post('/verify-token', (req, res) => {
     }
 });
 
-app.get('/computadores', async (req, res) => {
-    const { status } = req.query; // Retrieve query parameter "status"
+app.post('/computadores', async (req, res) => {
+    const { login } = req.body; 
     try {
-      const query = status ? 'SELECT * FROM computador WHERE status = $1' : 'SELECT * FROM computador';
-      const values = status ? [status] : [];
+      const query = `SELECT * FROM computador C LEFT JOIN switch S ON S.id = C.idswitch WHERE S.login = $1`;
+      const values = [login];
       const result = await pool.query(query, values);
+  
       res.status(200).json(result.rows);
     } catch (err) {
       console.error('Error fetching computers:', err);
       res.status(500).json({ error: 'Failed to fetch computers' });
     }
-});
+  });
 
 // Endpoint to toggle status of a specific computer
 app.put('/computadores/single/:id', async (req, res) => {
@@ -82,7 +83,7 @@ app.put('/computadores/single/:id', async (req, res) => {
   
     try {
       const result = await pool.query(
-        'UPDATE Computador SET Status = $1 WHERE Id = $2 RETURNING *',
+        'UPDATE Computador SET status = $1 WHERE porta = $2 RETURNING *',
         [status, id]
       );
   

@@ -24,7 +24,7 @@ function Login() {
       if (response.ok) {
         setMensagem('Login bem-sucedido!');
         localStorage.setItem('token', data.token); // Store JWT for authentication
-        navigate('/computadores');
+        navigate('/computadores', {state: {login}});
       } else {
         setMensagem(data.message);
       }
