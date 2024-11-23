@@ -1,151 +1,137 @@
 /* src/Computadores.css */
 .computadores-container {
-    padding: 20px;
-    background-color: #1e1e1e;
-    color: #ffffff;
-  }
+  padding: 20px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
 
-  .computador-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    gap: 1px;
-  }
-  
+.computador-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 1px;
+}
+
+.computadores-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.computador-card {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.computador-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.computador-icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.computador-info {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+
+.status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+
+.status.st-ativo {
+  background-color: green;
+}
+
+.status.st-bloqueado {
+  background-color: red;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: background-color 0.3s;
+}
+
+.block-all-button {
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+}
+
+.unblock-all-button {
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.bloqueado,.unblock-all-button {
+  background-color: #28a745;
+}
+
+.ativo,.block-all-button {
+  background-color: #dc3545;
+}
+
+.agendar {
+  background-color: #007bff;
+}
+
+.bloqueado:hover,.unblock-all-button:hover {
+  background-color: #218838;
+}
+
+.ativo:hover,.block-all-button:hover {
+  background-color: #c82333;
+}
+
+.agendar:hover {
+  background-color: #0056b3;
+}
+
+
+@media (max-width: 1200px) {
   .computadores-list {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  .computador-card {
-    background-color: #2a2a2a;
-    border-radius: 8px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  }
+}
 
-  .card-inativo-bloqueado {
-    border: 2px solid red;
+@media (max-width: 768px) {
+  .computadores-list {
+    grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  .card-inativo-ativo {
-    border: 2px solid green;
+@media (max-width: 480px) {
+  .computadores-list {
+    grid-template-columns: 1fr;
   }
-
-  .computador-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .computador-icon {
-    font-size: 30px;
-    margin-bottom: 10px;
-  }
-  
-  .computador-info {
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  
-
-  .status {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-left: 5px;
-  }
-
-  
-  .status.st-ativo {
-    background-color: green;
-  }
-
-  .status.st-bloqueado {
-    background-color: red;
-  }
-
-  .status.st-inativo {
-    background-color: gray;
-  }
-  
-
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 5px 10px;
-    transition: background-color 0.3s;
-  }
-
-  .block-all-button {
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: background-color 0.3s;
-  }
-
-  .unblock-all-button {
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    transition: background-color 0.3s;
-  }
-
-  .bloqueado,.block-all-button {
-    background-color: #28a745;
-  }
-
-  .ativo,.unblock-all-button {
-    background-color: #dc3545;
-  }
-
-  .agendar {
-    background-color: #007bff;
-  }
-  
-  .bloqueado:hover,.block-all-button:hover {
-    background-color: #218838;
-  }
-
-  .ativo:hover,.unblock-all-button:hover {
-    background-color: #c82333;
-  }
-  
-  .agendar:hover {
-    background-color: #0056b3;
-  }
-  
-
-  @media (max-width: 1200px) {
-    .computadores-list {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .computadores-list {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .computadores-list {
-      grid-template-columns: 1fr;
-    }
-  }
-  
+}

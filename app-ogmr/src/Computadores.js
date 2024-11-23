@@ -1,24 +1,28 @@
-// src/Computadores.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Computadores.css';
 import Modal from './Modal';
 
-const initialComputadoresData = [
-  { id: 1, porta: 'COM1', status: 'Ativo', isActive: true },
-  { id: 2, porta: 'COM2', status: 'Bloqueado', isActive: false },
-  { id: 3, porta: 'COM3', status: 'Ativo', isActive: true },
-  { id: 4, porta: 'COM4', status: 'Ativo', isActive: false },
-  { id: 5, porta: 'COM5', status: 'Ativo', isActive: false },
-  { id: 6, porta: 'COM6', status: 'Bloqueado', isActive: true },
-  { id: 7, porta: 'COM7', status: 'Ativo', isActive: true },
-  { id: 8, porta: 'COM8', status: 'Bloqueado', isActive: false },
-];
-
 function Computadores() {
-  const [computadoresData, setComputadoresData] = useState(initialComputadoresData);
+  const [computadoresData, setComputadoresData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedComputador, setSelectedComputador] = useState(null);
 
+  // Fetch data from server on component mount
+  useEffect(() => {
+    const fetchComputadores = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/computadores'); // Replace with your server endpoint
+        const data = await response.json();
+        setComputadoresData(data);
+      } catch (error) {
+        console.error('Error fetching computadores data:', error);
+      }
+    };
+
+    fetchComputadores();
+  }, []);
+
+  // Handle agendar button click
   const handleAgendarClick = (computador) => {
     setSelectedComputador(computador);
     setIsModalOpen(true);
@@ -29,35 +33,73 @@ function Computadores() {
     setSelectedComputador(null);
   };
 
-  const toggleStatus = (id) => {
-    setComputadoresData((prevData) =>
-      prevData.map((computador) =>
-        computador.id === id
-          ? { 
-              ...computador, 
-              status: computador.status === 'Ativo' ? 'Bloqueado' : 'Ativo'
-            }
-          : computador
-      )
-    );
+  // Toggle status and update the backend
+  const toggleStatus = async (id) => {
+    try {
+      const computador = computadoresData.find((c) => c.id === id);
+      const updatedStatus = computador.status ? false : true;
+      // Update on the server
+      const response = await fetch(`http://localhost:5000/computadores/single/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: updatedStatus }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setComputadoresData((prevData) =>
+          prevData.map((computador) =>
+            computador.id === id ? { ...computador, status: updatedStatus } : computador
+          )
+        );
+      } else {
+        console.error('Error updating status');
+      }
+    } catch (error) {
+      console.error('Error toggling status:', error);
+    }
   };
 
-  const blockAllActive = () => {
-    setComputadoresData((prevData) =>
-      prevData.map((computador) =>
-        computador.status === 'Ativo' ? { ...computador, status: 'Bloqueado'} : computador
-      )
-    );
+  // Block all active computadores
+  const blockAllActive = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/computadores/block-all', {
+        method: 'PUT',
+      });
+
+      if (response.ok) {
+        setComputadoresData((prevData) =>
+          prevData.map((computador) =>
+            computador.status ? { ...computador, status: false } : computador
+          )
+        );
+      } else {
+        console.error('Error blocking all active computadores');
+      }
+    } catch (error) {
+      console.error('Error blocking all active computadores:', error);
+    }
   };
 
-  const unblockAllBlocked = () => {
-    setComputadoresData((prevData) =>
-      prevData.map((computador) =>
-        computador.status === 'Bloqueado' 
-          ? { ...computador, status: 'Ativo'} 
-          : computador
-      )
-    );
+  // Unblock all blocked computadores
+  const unblockAllBlocked = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/computadores/unblock-all', {
+        method: 'PUT',
+      });
+
+      if (response.ok) {
+        setComputadoresData((prevData) =>
+          prevData.map((computador) =>
+            !computador.status ? { ...computador, status: true } : computador
+          )
+        );
+      } else {
+        console.error('Error unblocking all blocked computadores');
+      }
+    } catch (error) {
+      console.error('Error unblocking all blocked computadores:', error);
+    }
   };
 
   return (
@@ -72,20 +114,20 @@ function Computadores() {
       <br></br><br></br>
       <div className="computadores-list">
         {computadoresData.map((computador) => (
-          <div key={computador.id} className={`computador-card ${!computador.isActive ? (computador.status === 'Bloqueado' ? 'card-inativo-bloqueado' : 'card-inativo-ativo') : ''}`}>
+          <div key={computador.id} className={'computador-card'}>
             <div className="computador-icon">💻</div>
             <div className="computador-info">
               <p>Porta: {computador.porta}</p>
               <p>Status:  
-              <span className={`status ${computador.isActive ? (computador.status === 'Ativo' ? 'st-ativo' : 'st-bloqueado') : 'st-inativo'}`}></span>
+              <span className={`status ${computador.status ? 'st-ativo' : 'st-bloqueado'}`}></span>
               </p>
             </div>
             <div className="computador-actions">
               <button 
-                className={computador.status === 'Ativo' ? 'bloqueado' : 'ativo'}
+                className={computador.status ? 'ativo' : 'bloqueado'}
                 onClick={() => toggleStatus(computador.id)} 
               >
-                {computador.status === 'Bloqueado' ? 'Desbloquear' : 'Bloquear'}
+                {computador.status ? 'Bloquear' : 'Desbloquear'}
               </button>
               <button 
                 className="agendar" 

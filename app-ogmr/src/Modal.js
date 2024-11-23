@@ -7,15 +7,44 @@ function Modal({ isOpen, onClose, computador }) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Scheduling:', {
-      computador,
+    setIsSubmitting(true);
+
+    const scheduleData = {
+      computadorId: computador?.id,
       startTime,
       endTime,
-    });
-    onClose();
+    };
+
+    try {
+      if (new Date(startTime) >= new Date(endTime)) {
+        return alert('Tempo de início menor que tempo de fim.');
+      }
+      const response = await fetch('/api/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scheduleData),
+      });
+
+      if (response.ok) {
+        console.log('Scheduled successfully:', await response.json());
+        onClose();
+      } else {
+        console.error('Failed to schedule:', await response.json());
+      }
+    } catch (error) {
+      console.error('Error scheduling:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  
 
   if (!isOpen) return null;
 
@@ -45,7 +74,9 @@ function Modal({ isOpen, onClose, computador }) {
             />
           </div>
           <div className="modal-actions">
-            <button type="submit">Agendar</button>
+            <button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Agendando...' : 'Agendar'}
+            </button>
             <button type="button" onClick={onClose}>Fechar</button>
           </div>
         </form>

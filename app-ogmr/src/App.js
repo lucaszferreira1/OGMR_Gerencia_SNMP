@@ -9,15 +9,30 @@ function Login() {
   const [mensagem, setMensagem] = useState('');
   const navigate = useNavigate(); // Hook para redirecionamento
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (login && senha) {
-      setMensagem('Login bem-sucedido!');
-      navigate('/computadores'); // Redireciona para a página de computadores
-    } else {
-      setMensagem('Por favor, preencha todos os campos.');
+  
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login, senha }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setMensagem('Login bem-sucedido!');
+        localStorage.setItem('token', data.token); // Store JWT for authentication
+        navigate('/computadores');
+      } else {
+        setMensagem(data.message);
+      }
+    } catch (error) {
+      setMensagem('Erro ao conectar ao servidor.');
+      console.error(error);
     }
-  };
+  };  
 
   return (
     <div className="container">

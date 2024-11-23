@@ -1,8 +1,12 @@
 nodejs.org
 
 npm install -g create-react-app
+
 npm install react-router-dom@latest
+npm install express pg body-parser cors bcrypt jsonwebtoken dotenv
 
 npx create-react-app app-ogmr
 cd app-ogmr
+
+node /src/server.js
 npm start
