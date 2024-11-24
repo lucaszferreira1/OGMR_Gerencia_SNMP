@@ -2,6 +2,7 @@ nodejs.org
 
 npm install -g create-react-app
 
+npm install net-snmp
 npm install react-router-dom@latest
 npm install express pg body-parser cors bcrypt jsonwebtoken dotenv
 

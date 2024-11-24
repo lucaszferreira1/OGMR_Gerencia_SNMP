@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const snmp = require('net-snmp');
 const { Pool } = require('pg');
 
 const app = express();
@@ -90,6 +90,23 @@ app.put('/computadores/single/:id', async (req, res) => {
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Computador not found' });
       }
+
+      /*
+      try { 
+        const switchIP = await pool.query('SELECT IP FROM SWITCH S LEFT JOIN COMPUTADOR C ON C.IDSWITCH = S.ID WHERE C.ID = $1', [id]);
+        const computerPort = await pool.query('SELECT porta FROM COMPUTADOR WHERE ID = $1', [id]);
+        try {
+          const snmpResult = await setPortStatus(switchIP.rows[0][ip], computerPort.rows[0][porta], status);
+          console.log(snmpResult); // Log SNMP result for debugging
+        } catch (snmpError) {
+            console.error('SNMP Error:', snmpError.message);
+            return res.status(500).json({ error: 'Failed to update switch port status' });
+        }
+      } catch (err) {
+        console.error('Error fetching computers:', err);
+        res.status(500).json({ error: 'Failed to fetch the switch ip or the computer port' });
+      }
+      */
   
       res.status(200).json(result.rows[0]); // Return the updated computer data
     } catch (err) {
@@ -109,7 +126,25 @@ app.put('/computadores/block-all', async (req, res) => {
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'No active computers found' });
       }
-  
+
+      /*
+      for (const computer of result.rows) {
+        try {
+            const switchIP = await pool.query('SELECT IP FROM SWITCH S LEFT JOIN COMPUTADOR C ON C.IDSWITCH = S.ID WHERE C.ID = $1', [computer.id]);
+
+            const computerPort = await pool.query('SELECT porta FROM COMPUTADOR WHERE ID = $1', [computer.id]);
+
+            const switchIp = switchIP.rows[0].ip;
+            const portIndex = computerPort.rows[0].porta;
+
+            await setPortStatus(switchIp, portIndex, false);
+            console.log(`Blocked port ${portIndex} on switch ${switchIp}`);
+        } catch (snmpError) {
+            console.error(`Failed to block port for computer ID: ${computer.id}`, snmpError.message);
+        }
+      }
+      */
+
       res.status(200).json(result.rows);
     } catch (err) {
       console.error('Error blocking all active computers:', err);
@@ -127,6 +162,24 @@ app.put('/computadores/unblock-all', async (req, res) => {
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'No blocked computers found' });
       }
+
+      /*
+      for (const computer of result.rows) {
+        try {
+            const switchIP = await pool.query( 'SELECT IP FROM SWITCH S LEFT JOIN COMPUTADOR C ON C.IDSWITCH = S.ID WHERE C.ID = $1', [computer.id]);
+
+            const computerPort = await pool.query('SELECT porta FROM COMPUTADOR WHERE ID = $1', [computer.id]);
+
+            const switchIp = switchIP.rows[0].ip;
+            const portIndex = computerPort.rows[0].porta;
+
+            await setPortStatus(switchIp, portIndex, true);
+            console.log(`Unblocked port ${portIndex} on switch ${switchIp}`);
+        } catch (snmpError) {
+            console.error(`Failed to unblock port for computer ID: ${computer.id}`, snmpError.message);
+        }
+      }
+      */
   
       res.status(200).json(result.rows);
     } catch (err) {
@@ -154,8 +207,28 @@ app.post('/agendar', async (req, res) => {
       res.status(500).json({ error: 'Failed to create schedule' });
     }
 });
-  
-  
+
+
+function setPortStatus(target, portIndex, enable, community = 'public') {
+  return new Promise((resolve, reject) => {
+      const session = snmp.createSession(target, community);
+      const oid = `1.3.6.1.2.1.2.2.1.7.${portIndex}`; // ifAdminStatus OID with port index
+
+      const status = enable ? 1 : 2; // 1 = Up (Enable), 2 = Down (Disable)
+
+      const varbind = [{ oid: oid, type: snmp.ObjectType.Integer, value: status }];
+
+      session.set(varbind, (error) => {
+          session.close();
+          if (error) {
+              reject(error);
+          } else {
+              resolve(`Port ${portIndex} set to ${enable ? 'Enabled' : 'Disabled'}.`);
+          }
+      });
+  });
+}
+
 
 // Start the server
 app.listen(PORT, () => {
