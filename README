@@ -1,9 +1,17 @@
-nodejs.org
+Versão funcionando no Linux Ubuntu:
 
-sudo apt install snmp
+Primeiro instalar o node do seguinte link:
+    nodejs.org
 
-npm install
-npm install express pg body-parser cors bcrypt jsonwebtoken dotenv react-router-dom@latest node-schedule
+Instalar o snmp do Ubuntu:
+    sudo apt install snmp
 
-node server.js
-npm start
+Instalar npm:
+    npm install
+Instalar as extensões:
+    npm install express pg body-parser cors bcrypt jsonwebtoken dotenv react-router-dom@latest node-schedule
+
+Rodar o arquivo, em um terminal, "server.js" com o seguinte comando:
+    node server.js
+Em um terminal diferente iniciar a página web:
+    npm start
