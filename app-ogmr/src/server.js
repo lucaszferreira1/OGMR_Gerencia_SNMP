@@ -4,6 +4,7 @@ const cors = require('cors');
 const { exec } = require('child_process');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
+const schedule = require('node-schedule');
 
 const app = express();
 const PORT = 5000;
@@ -150,43 +151,60 @@ app.put('/computadores/unblock-all', async (req, res) => {
 });
 
 app.post('/agendar', async (req, res) => {
-    const {login, porta, startTime, endTime } = req.body;
-    
-    if (!login || !porta || !startTime || !endTime) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-  
-    try {
-      const result = await pool.query(
-        'INSERT INTO BLOQUEIO (ID, IDUSUARIO, IDSWITCH, PORTA, INICIO, FIM) VALUES ((SELECT COALESCE(MAX(ID), 0) + 1 FROM BLOQUEIO), (SELECT ID FROM USUARIO WHERE LOGIN = $2), (SELECT ID FROM SWITCH WHERE LOGIN = $2), $1, $3, $4) RETURNING *',
-        [porta, login, startTime, endTime]
-      );
-  
-      res.status(201).json(result.rows[0]);
-    } catch (err) {
-      console.error('Error creating schedule:', err);
-      res.status(500).json({ error: 'Failed to register schedule' });
-    }
-  });
-  
-  const executeScript = (ip, operation, ports) => {
-    return new Promise((resolve, reject) => {
-      const op = operation ? 1 : 2;
-      const portsString = ports.join(' '); // Convert ports array to a space-separated string
-      const command = `./script.sh ${ip} ${op} ${portsString}`;
-      
-      exec(command, (error, stdout, stderr) => {
-          if (error) {
-              console.error(`Error executing script: ${error.message}`);
-              return;
-          }
-          if (stderr) {
-              console.error(`Script stderr: ${stderr}`);
-          }
-          resolve(stdout.trim()); // Resolve with the output of the script
-      });
+  const { login, porta, startTime, endTime } = req.body;
+
+  if (!login || !porta || !startTime || !endTime) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Insert the schedule into the database
+    const result = await pool.query(
+      'INSERT INTO BLOQUEIO (ID, IDUSUARIO, IDSWITCH, PORTA, INICIO, FIM, EXECUTADO) VALUES ((SELECT COALESCE(MAX(ID), 0) + 1 FROM BLOQUEIO), (SELECT ID FROM USUARIO WHERE LOGIN = $2), (SELECT ID FROM SWITCH WHERE LOGIN = $2), $1, $3, $4, false) RETURNING *',
+      [porta, login, startTime, endTime]
+    );
+
+    // Schedule to execute the script at start time (set status to false)
+    schedule.scheduleJob(startTime, async () => {
+      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1', [login]);
+      executeScript(switchip.rows[0].ip, false, [porta]);
+      const exe = await pool.query('UPDATE Computador SET status = true WHERE porta = $1', [porta]);
+      console.log(`Scheduled start at: ${startTime}`);
     });
-  };
+
+    schedule.scheduleJob(endTime, async () => {
+      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1', [login]);
+      executeScript(switchip.rows[0].ip, true, [porta]);
+      const res = await pool.query('UPDATE BLOQUEIO SET EXECUTADO = TRUE WHERE ID = $1', [result.rows[0].id]);
+      const exe = await pool.query('UPDATE Computador SET status = false WHERE porta = $1', [porta]);
+      console.log(`Scheduled end at: ${endTime}`);
+    });
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error creating schedule:', err);
+    res.status(500).json({ error: 'Failed to register schedule' });
+  }
+});
+
+const executeScript = (ip, operation, ports) => {
+  return new Promise((resolve, reject) => {
+    const op = operation ? 1 : 2;
+    const portsString = ports.join(' '); // Convert ports array to a space-separated string
+    const command = `./script.sh ${ip} ${op} ${portsString}`;
+    
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing script: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.error(`Script stderr: ${stderr}`);
+        }
+        resolve(stdout.trim()); // Resolve with the output of the script
+    });
+  });
+};
 
 // Start the server
 app.listen(PORT, () => {

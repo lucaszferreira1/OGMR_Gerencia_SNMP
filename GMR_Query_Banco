@@ -48,6 +48,7 @@ CREATE TABLE Bloqueio (
     Porta INT NOT NULL,
     Inicio TIMESTAMP NOT NULL,
     Fim TIMESTAMP NOT NULL,
+    Executado BOOL NOT NULL,
     FOREIGN KEY (IDUsuario) REFERENCES Usuario(ID),
     FOREIGN KEY (IdSwitch) REFERENCES Switch(ID)
 );
