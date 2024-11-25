@@ -54,7 +54,7 @@ function Computadores() {
       const response = await fetch(`http://localhost:5000/computadores/single/${porta}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: updatedStatus }),
+        body: JSON.stringify({ status: updatedStatus , login: login}),
       });
 
       if (response.ok) {
@@ -77,12 +77,14 @@ function Computadores() {
     try {
       const response = await fetch('http://localhost:5000/computadores/block-all', {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login }),
       });
 
       if (response.ok) {
         setComputadoresData((prevData) =>
           prevData.map((computador) =>
-            computador.status ? { ...computador, status: false } : computador
+            computador.status ? { ...computador, status: false , login: login} : computador
           )
         );
       } else {
@@ -98,12 +100,14 @@ function Computadores() {
     try {
       const response = await fetch('http://localhost:5000/computadores/unblock-all', {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login }),
       });
 
       if (response.ok) {
         setComputadoresData((prevData) =>
           prevData.map((computador) =>
-            !computador.status ? { ...computador, status: true } : computador
+            !computador.status ? { ...computador, status: true , login: login} : computador
           )
         );
       } else {
@@ -125,32 +129,35 @@ function Computadores() {
       </button>
       <br></br><br></br>
       <div className="computadores-list">
-        {computadoresData.map((computador) => (
-          <div key={computador.id} className={'computador-card'}>
-            <div className="computador-icon">💻</div>
-            <div className="computador-info">
-              <p>Porta: {computador.porta}</p>
-              <p>Status:   
-              <span className={`status ${computador.status ? 'st-ativo' : 'st-bloqueado'}`}></span>
-              </p>
-            </div>
-            <div className="computador-actions">
-              <button 
-                className={computador.status ? 'ativo' : 'bloqueado'}
-                onClick={() => toggleStatus(computador.porta)} 
-              >
-                {computador.status ? 'Bloquear' : 'Desbloquear'}
-              </button>
-              <button 
-                className="agendar" 
-                onClick={() => handleAgendarClick(computador)}
-              >
-                Agendar
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+        {computadoresData
+          .slice() // Create a copy to avoid mutating the original state
+          .sort((a, b) => a.porta - b.porta) // Sort by port number
+          .map((computador) => (
+            <div key={computador.id} className={'computador-card'}>
+              <div className="computador-icon">💻</div>
+                <div className="computador-info">
+                  <p>Porta: {computador.porta}</p>
+                  <p>Status:   
+                  <span className={`status ${computador.status ? 'st-ativo' : 'st-bloqueado'}`}></span>
+                  </p>
+                </div>
+                <div className="computador-actions">
+                  <button 
+                    className={computador.status ? 'ativo' : 'bloqueado'}
+                    onClick={() => toggleStatus(computador.porta)} 
+                  >
+                    {computador.status ? 'Bloquear' : 'Desbloquear'}
+                  </button>
+                  <button 
+                    className="agendar" 
+                    onClick={() => handleAgendarClick(computador)}
+                  >
+                    Agendar
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
 
       <Modal 
         isOpen={isModalOpen} 

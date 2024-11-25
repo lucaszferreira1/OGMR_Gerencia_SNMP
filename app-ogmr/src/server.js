@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
+const { exec } = require('child_process');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
@@ -79,7 +79,7 @@ app.post('/computadores', async (req, res) => {
 // Endpoint to toggle status of a specific computer
 app.put('/computadores/single/:id', async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, login } = req.body;
   
     try {
       const result = await pool.query(
@@ -90,6 +90,10 @@ app.put('/computadores/single/:id', async (req, res) => {
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Computador not found' });
       }
+
+      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1',[login]);
+      const ports = result.rows.map(row => id);
+      executeScript(switchip.rows[0].ip, status, ports);
   
       res.status(200).json(result.rows[0]); // Return the updated computer data
     } catch (err) {
@@ -102,6 +106,7 @@ app.put('/computadores/single/:id', async (req, res) => {
 // Endpoint to block all active computers
 app.put('/computadores/block-all', async (req, res) => {
     try {
+      const { login } = req.body;
       const result = await pool.query(
         'UPDATE Computador SET status = false WHERE status = true RETURNING *'
       );
@@ -109,6 +114,10 @@ app.put('/computadores/block-all', async (req, res) => {
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'No active computers found' });
       }
+
+      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1',[login]);
+      const ports = result.rows.map(row => row.porta);
+      executeScript(switchip.rows[0].ip, false, ports);
   
       res.status(200).json(result.rows);
     } catch (err) {
@@ -120,13 +129,18 @@ app.put('/computadores/block-all', async (req, res) => {
 // Endpoint to unblock all blocked computers
 app.put('/computadores/unblock-all', async (req, res) => {
     try {
+      const { login } = req.body;
       const result = await pool.query(
-        'UPDATE Computador SET Status = true WHERE Status = false RETURNING *'
+        'UPDATE Computador SET Status = true WHERE status = false RETURNING *'
       );
   
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'No blocked computers found' });
       }
+
+      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1',[login]);
+      const ports = result.rows.map(row => row.porta);
+      executeScript(switchip.rows[0].ip, true, ports);
   
       res.status(200).json(result.rows);
     } catch (err) {
@@ -151,11 +165,28 @@ app.post('/agendar', async (req, res) => {
       res.status(201).json(result.rows[0]);
     } catch (err) {
       console.error('Error creating schedule:', err);
-      res.status(500).json({ error: 'Failed to create schedule' });
+      res.status(500).json({ error: 'Failed to register schedule' });
     }
-});
+  });
   
-  
+  const executeScript = (ip, operation, ports) => {
+    return new Promise((resolve, reject) => {
+      const op = operation ? 1 : 2;
+      const portsString = ports.join(' '); // Convert ports array to a space-separated string
+      const command = `./script.sh ${ip} ${op} ${portsString}`;
+      
+      exec(command, (error, stdout, stderr) => {
+          if (error) {
+              console.error(`Error executing script: ${error.message}`);
+              return;
+          }
+          if (stderr) {
+              console.error(`Script stderr: ${stderr}`);
+          }
+          resolve(stdout.trim()); // Resolve with the output of the script
+      });
+    });
+  };
 
 // Start the server
 app.listen(PORT, () => {

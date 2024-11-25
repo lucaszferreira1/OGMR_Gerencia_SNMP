@@ -1,12 +1,10 @@
 nodejs.org
 
-npm install -g create-react-app
+sudo apt install snmp
 
+npm install
 npm install react-router-dom@latest
-npm install express pg body-parser cors bcrypt jsonwebtoken dotenv
+npm install express pg body-parser cors bcrypt jsonwebtoken dotenv react-router-dom@latest
 
-npx create-react-app app-ogmr
-cd app-ogmr
-
-node /src/server.js
+node server.js
 npm start
