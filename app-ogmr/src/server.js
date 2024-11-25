@@ -80,19 +80,19 @@ app.post('/computadores', async (req, res) => {
 // Endpoint to toggle status of a specific computer
 app.put('/computadores/single/:id', async (req, res) => {
     const { id } = req.params;
-    const { status, login } = req.body;
+    const { status, idswitch } = req.body;
   
     try {
       const result = await pool.query(
-        'UPDATE Computador SET status = $1 WHERE porta = $2 RETURNING *',
-        [status, id]
+        'UPDATE COMPUTADOR SET status = $1 WHERE porta = $2 AND IDSWITCH = $3 RETURNING *',
+        [status, id, idswitch]
       );
   
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Computador not found' });
       }
 
-      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1',[login]);
+      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE ID = $1',[idswitch]);
       const ports = result.rows.map(row => id);
       executeScript(switchip.rows[0].ip, status, ports);
   
@@ -108,17 +108,19 @@ app.put('/computadores/single/:id', async (req, res) => {
 app.put('/computadores/block-all', async (req, res) => {
     try {
       const { login } = req.body;
+      const _switch = await pool.query('SELECT ID, IP FROM SWITCH WHERE LOGIN = $1',[login]);
       const result = await pool.query(
-        'UPDATE Computador SET status = false WHERE status = true RETURNING *'
+        'UPDATE Computador SET status = false WHERE status = true AND idswitch = $1 RETURNING *',
+        [_switch.rows[0].id]
       );
   
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'No active computers found' });
       }
 
-      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1',[login]);
+      
       const ports = result.rows.map(row => row.porta);
-      executeScript(switchip.rows[0].ip, false, ports);
+      executeScript(_switch.rows[0].ip, false, ports);
   
       res.status(200).json(result.rows);
     } catch (err) {
@@ -131,17 +133,18 @@ app.put('/computadores/block-all', async (req, res) => {
 app.put('/computadores/unblock-all', async (req, res) => {
     try {
       const { login } = req.body;
+      const _switch = await pool.query('SELECT ID, IP FROM SWITCH WHERE LOGIN = $1',[login]);
       const result = await pool.query(
-        'UPDATE Computador SET Status = true WHERE status = false RETURNING *'
+        'UPDATE Computador SET status = true WHERE status = false AND idswitch = $1 RETURNING *',
+        [_switch.rows[0].id]
       );
   
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'No blocked computers found' });
       }
 
-      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1',[login]);
       const ports = result.rows.map(row => row.porta);
-      executeScript(switchip.rows[0].ip, true, ports);
+      executeScript(_switch.rows[0].ip, true, ports);
   
       res.status(200).json(result.rows);
     } catch (err) {
@@ -166,17 +169,17 @@ app.post('/agendar', async (req, res) => {
 
     // Schedule to execute the script at start time (set status to false)
     schedule.scheduleJob(startTime, async () => {
-      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1', [login]);
-      executeScript(switchip.rows[0].ip, false, [porta]);
-      const exe = await pool.query('UPDATE Computador SET status = true WHERE porta = $1', [porta]);
+      const _switch = await pool.query('SELECT ID, IP FROM SWITCH WHERE LOGIN = $1', [login]);
+      executeScript(_switch.rows[0].ip, false, [porta]);
+      const exe = await pool.query('UPDATE Computador SET status = true WHERE porta = $1 AND IDSWITCH = $2', [porta, _switch.rows[0].id]);
       console.log(`Scheduled start at: ${startTime}`);
     });
 
     schedule.scheduleJob(endTime, async () => {
-      const switchip = await pool.query('SELECT IP FROM SWITCH WHERE LOGIN = $1', [login]);
-      executeScript(switchip.rows[0].ip, true, [porta]);
+      const _switch = await pool.query('SELECT ID, IP FROM SWITCH WHERE LOGIN = $1', [login]);
+      executeScript(_switch.rows[0].ip, true, [porta]);
       const res = await pool.query('UPDATE BLOQUEIO SET EXECUTADO = TRUE WHERE ID = $1', [result.rows[0].id]);
-      const exe = await pool.query('UPDATE Computador SET status = false WHERE porta = $1', [porta]);
+      const exe = await pool.query('UPDATE Computador SET status = false WHERE porta = $1 AND IDSWITCH = $2 ', [porta, _switch.rows[0].id]);
       console.log(`Scheduled end at: ${endTime}`);
     });
 

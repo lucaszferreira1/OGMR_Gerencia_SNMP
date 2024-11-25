@@ -46,7 +46,7 @@ function Computadores() {
   };
 
   // Toggle status and update the backend
-  const toggleStatus = async (porta) => {
+  const toggleStatus = async (idswitch, porta) => {
     try {
       const computador = computadoresData.find((c) => c.porta === porta);
       const updatedStatus = computador.status ? false : true;
@@ -54,7 +54,7 @@ function Computadores() {
       const response = await fetch(`http://localhost:5000/computadores/single/${porta}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: updatedStatus , login: login}),
+        body: JSON.stringify({ status: updatedStatus, idswitch: idswitch }),
       });
 
       if (response.ok) {
@@ -144,7 +144,7 @@ function Computadores() {
                 <div className="computador-actions">
                   <button 
                     className={computador.status ? 'ativo' : 'bloqueado'}
-                    onClick={() => toggleStatus(computador.porta)} 
+                    onClick={() => toggleStatus(computador.idswitch, computador.porta)} 
                   >
                     {computador.status ? 'Bloquear' : 'Desbloquear'}
                   </button>
