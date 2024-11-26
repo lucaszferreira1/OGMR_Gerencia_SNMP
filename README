@@ -1,17 +1,21 @@
-Versão funcionando no Linux Ubuntu:
+-- Versão funcionando no Linux Ubuntu:
 
-Primeiro instalar o node do seguinte link:
+1. Primeiro instalar o node do seguinte link:
     nodejs.org
 
-Instalar o snmp do Ubuntu:
+2. Instalar o PostgreSQL e criar um banco chamado "ogmr" com o usuário "postgres" e senha "postgres" e inserir a query do banco de dados.
+
+3. Instalar o agente snmp do Ubuntu com o comando:
     sudo apt install snmp
 
-Instalar npm:
+4. Instalar npm com o comando:
     npm install
-Instalar as extensões:
+
+5. Instalar as extensões:
     npm install express pg body-parser cors bcrypt jsonwebtoken dotenv react-router-dom@latest node-schedule
 
-Rodar o arquivo, em um terminal, "server.js" com o seguinte comando:
+6. Em um terminal rodar o arquivo "server.js" com o seguinte comando:
     node server.js
-Em um terminal diferente iniciar a página web:
+
+7. Em um terminal diferente iniciar o servidor web:
     npm start
