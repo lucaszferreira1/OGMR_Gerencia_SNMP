@@ -12,7 +12,7 @@
     npm install
 
 5. Instalar as extensões:
-    npm install express pg body-parser cors bcrypt jsonwebtoken dotenv react-router-dom@latest node-schedule
+    npm install express pg body-parser cors jsonwebtoken dotenv react-router-dom@latest node-schedule
 
 6. Em um terminal rodar o arquivo "server.js" com o seguinte comando:
     node server.js

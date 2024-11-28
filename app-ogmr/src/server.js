@@ -211,5 +211,5 @@ const executeScript = (ip, operation, ports) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://10.90.90.0:${PORT}`);
 });
