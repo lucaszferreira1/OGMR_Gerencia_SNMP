@@ -14,7 +14,7 @@ function Computadores() {
   useEffect(() => {
     const fetchComputadores = async () => {
       try {
-        const response = await fetch('http://10.90.90.0:5000/computadores', {
+        const response = await fetch('localhost:5000/computadores', {
           method: 'POST', // Use POST since we're sending data in the body
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ login }), // Send login as JSON
@@ -51,7 +51,7 @@ function Computadores() {
       const computador = computadoresData.find((c) => c.porta === porta);
       const updatedStatus = computador.status ? false : true;
       // Update on the server
-      const response = await fetch(`http://10.90.90.0:5000/computadores/single/${porta}`, {
+      const response = await fetch(`http://localhost:5000/computadores/single/${porta}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: updatedStatus, idswitch: idswitch }),
@@ -75,7 +75,7 @@ function Computadores() {
   // Block all active computadores
   const blockAllActive = async () => {
     try {
-      const response = await fetch('http://10.90.90.0:5000/computadores/block-all', {
+      const response = await fetch('http://localhost:5000/computadores/block-all', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login }),
@@ -98,7 +98,7 @@ function Computadores() {
   // Unblock all blocked computadores
   const unblockAllBlocked = async () => {
     try {
-      const response = await fetch('http://10.90.90.0:5000/computadores/unblock-all', {
+      const response = await fetch('http://localhost:5000/computadores/unblock-all', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login }),
